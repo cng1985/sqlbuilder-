@@ -39,7 +39,8 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
-			result = queryRunner.query(con, sql,new BeanListMHandler<T>(getEntityClass()));
+			result = queryRunner.query(con, sql, new BeanListMHandler<T>(
+					getEntityClass()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -48,16 +49,16 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 		return result;
 	}
 
-	public Pagination page(Finder finder, int pageNo, int pageSize) {
-		Pagination result = null;
+	public Pagination<T> page(Finder finder, int pageNo, int pageSize) {
+		Pagination<T> result = null;
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
 
 			int totalCount = countQueryResult(finder);
-			result = new Pagination(pageNo, pageSize, totalCount);
+			result = new Pagination<T>(pageNo, pageSize, totalCount);
 			if (totalCount < 1) {
-				result.setList(new ArrayList());
+				result.setList(new ArrayList<T>());
 				return result;
 			}
 
@@ -72,16 +73,16 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 		return result;
 	}
 
-	public Pagination pageBySelect(SelectCreator creator, int pageNo,
+	public Pagination<T> pageBySelect(SelectCreator creator, int pageNo,
 			int pageSize) {
-		Pagination result = pageBySelect(creator, pageNo, pageSize,
+		Pagination<T> result = pageBySelect(creator, pageNo, pageSize,
 				new BeanListMHandler<T>(getEntityClass()));
 		return result;
 	}
 
-	public Pagination pageBySelect(SelectCreator creator, int pageNo,
+	public Pagination<T> pageBySelect(SelectCreator creator, int pageNo,
 			int pageSize, ResultSetHandler<List<T>> handler) {
-		Pagination result = null;
+		Pagination<T> result = null;
 		Connection con = null;
 		try {
 			con = dataSource.getConnection();
@@ -90,9 +91,9 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 			long totalCounts = queryRunner.query(stmts,
 					new ScalarHandler<Long>());
 			int totalCount = Integer.valueOf(totalCounts + "");
-			result = new Pagination(pageNo, pageSize, totalCount);
+			result = new Pagination<T>(pageNo, pageSize, totalCount);
 			if (totalCount < 1) {
-				result.setList(new ArrayList());
+				result.setList(new ArrayList<T>());
 				return result;
 			}
 			PreparedStatement stmt = creator.page(new MySqlDialect(),
@@ -179,7 +180,7 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 				}
 			}
 			PreparedStatement p = creator.createPreparedStatement(con);
-			int code = p.executeUpdate();
+			p.executeUpdate();
 			result = queryRunner.query(con, "SELECT last_insert_id()",
 					new ScalarHandler<Long>());
 		} catch (Exception e) {
@@ -190,7 +191,7 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 		return result;
 	}
 
-	public T update(T sql) {
+	public T update(T entity) {
 		T result = null;
 		Connection con = null;
 		try {
@@ -201,17 +202,17 @@ public abstract class DataModelDao<T extends Model> extends DataSourceDao {
 				final String fieldName = mTableInfo.getColumnName(field);
 				if (!fieldName.equals("id")) {
 					field.setAccessible(true);
-					Object value = field.get(sql);
+					Object value = field.get(entity);
 					creator.setValue(fieldName, value);
 				} else {
 					field.setAccessible(true);
-					Object value = field.get(sql);
+					Object value = field.get(entity);
 					creator.whereEquals(fieldName, value);
 				}
 			}
 			PreparedStatement p = creator.createPreparedStatement(con);
-			int code = p.executeUpdate();
-			result = sql;
+			p.executeUpdate();
+			result = entity;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

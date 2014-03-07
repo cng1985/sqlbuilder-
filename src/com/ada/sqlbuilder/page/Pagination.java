@@ -6,7 +6,7 @@ import java.util.List;
  * 列表分页。包含list属性。
  */
 @SuppressWarnings("serial")
-public class Pagination extends SimplePage implements java.io.Serializable,
+public class Pagination<T> extends SimplePage implements java.io.Serializable,
 		Paginable {
 
 	public Pagination() {
@@ -38,7 +38,7 @@ public class Pagination extends SimplePage implements java.io.Serializable,
 	 * @param list
 	 *            分页内容
 	 */
-	public Pagination(int pageNo, int pageSize, int totalCount, List<?> list) {
+	public Pagination(int pageNo, int pageSize, int totalCount, List<T> list) {
 		super(pageNo, pageSize, totalCount);
 		this.list = list;
 	}
@@ -55,14 +55,14 @@ public class Pagination extends SimplePage implements java.io.Serializable,
 	/**
 	 * 当前页的数据
 	 */
-	private List<?> list;
+	private List<T> list;
 
 	/**
 	 * 获得分页内容
 	 * 
 	 * @return
 	 */
-	public List<?> getList() {
+	public List<T> getList() {
 		return list;
 	}
 

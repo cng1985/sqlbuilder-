@@ -3,6 +3,7 @@ sqlbuilder 通过修改Apache 的dbutils 和sqlbuilder整合进去的工程，�
 
 简单的例子
 Table表名 Column行名
+
     package com.benshuixuan.entity;
     
     import java.io.Serializable;
